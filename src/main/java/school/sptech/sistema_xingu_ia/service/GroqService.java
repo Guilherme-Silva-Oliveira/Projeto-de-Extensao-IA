@@ -2,6 +2,7 @@ package school.sptech.sistema_xingu_ia.service;
 
 import org.springframework.stereotype.Service;
 import school.sptech.sistema_xingu_ia.client.GroqClient;
+import school.sptech.sistema_xingu_ia.client.SolicitacaoClient;
 import school.sptech.sistema_xingu_ia.dto.GroqMessageStruct;
 import school.sptech.sistema_xingu_ia.dto.GroqPedidoMaterial;
 import school.sptech.sistema_xingu_ia.dto.GroqRequest;
@@ -13,9 +14,11 @@ import java.util.List;
 @Service
 public class GroqService {
     private final GroqClient client;
+    private final SolicitacaoClient solicitacaoClient;
     private final GroqMapper mapper;
-    public GroqService(GroqClient client, GroqMapper mapper) {
+    public GroqService(GroqClient client, SolicitacaoClient solicitacaoClient, GroqMapper mapper) {
         this.client = client;
+        this.solicitacaoClient = solicitacaoClient;
         this.mapper = mapper;
     }
 
@@ -76,7 +79,8 @@ public class GroqService {
                 .get(0)
                 .getMessage()
                 .getContent();
-
-        return mapper.toGroqPedidoMaterial(json);
+        GroqPedidoMaterial solicitacao = mapper.toGroqPedidoMaterial(json);
+        solicitacaoClient.enviarSolicitacao(solicitacao);
+        return solicitacao;
     }
 }
