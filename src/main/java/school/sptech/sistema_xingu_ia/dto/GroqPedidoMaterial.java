@@ -1,0 +1,25 @@
+package school.sptech.sistema_xingu_ia.dto;
+
+public class GroqPedidoMaterial {
+    private String nome_professor;
+    private String nome_material;
+    private Integer quantidade;
+    private String data_solicitacao;
+
+    public GroqPedidoMaterial(String nome_professor, String nome_material, Integer quantidade, String data_solicitacao) {
+        this.nome_professor = nome_professor;
+        this.nome_material = nome_material;
+        this.quantidade = quantidade;
+        this.data_solicitacao = data_solicitacao;
+    }
+    public GroqPedidoMaterial() {}
+
+    public String getNome_professor() {return nome_professor;}
+    public void setNome_professor(String nome_professor) {this.nome_professor = nome_professor;}
+    public String getNome_material() {return nome_material;}
+    public void setNome_material(String nome_material) {this.nome_material = nome_material;}
+    public Integer getQuantidade() {return quantidade;}
+    public void setQuantidade(Integer quantidade) {this.quantidade = quantidade;}
+    public String getData_solicitacao() {return data_solicitacao;}
+    public void setData_solicitacao(String data_solicitacao) {this.data_solicitacao = data_solicitacao;}
+}
