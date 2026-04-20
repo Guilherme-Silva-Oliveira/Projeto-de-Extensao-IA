@@ -119,8 +119,4 @@ public class GroqService {
         //solicitacaoClient.enviarSolicitacao(solicitacao);
         return solicitacao;
     }
-    public String enviarMensagemClassApp(String textoRecebido){
-
-        return "aa";
-    }
 }

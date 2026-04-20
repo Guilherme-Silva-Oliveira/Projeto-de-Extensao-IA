@@ -20,9 +20,4 @@ public class GroqController {
     public ResponseEntity<GroqPedidoMaterial> talk (@RequestBody String mensagem){
         return ResponseEntity.status(201).body(service.extrairDados(mensagem));
     }
-
-    @PostMapping("/message")
-    public ResponseEntity<String> enviarMensagem(@RequestBody String mensagem){
-        return ResponseEntity.status(201).body(service.enviarMensagemClassApp(mensagem));
-    }
 }
