@@ -117,6 +117,8 @@ Formato obrigatório da resposta:
                 .getMessage()
                 .getContent();
         GroqPedidoMaterial solicitacao = mapper.toGroqPedidoMaterial(json);
+        //PARA ENVIAR MENSAGEM À API PRINCIPAL
+        //solicitacaoClient.enviarSolicitacao(solicitacao);
         return solicitacao;
     }
 }
