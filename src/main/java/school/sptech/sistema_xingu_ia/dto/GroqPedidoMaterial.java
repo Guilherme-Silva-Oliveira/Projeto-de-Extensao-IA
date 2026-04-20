@@ -5,12 +5,14 @@ public class GroqPedidoMaterial {
     private String nome_material;
     private Integer quantidade;
     private String data_solicitacao;
+    private String alerta;
 
-    public GroqPedidoMaterial(String nome_professor, String nome_material, Integer quantidade, String data_solicitacao) {
+    public GroqPedidoMaterial(String nome_professor, String nome_material, Integer quantidade, String data_solicitacao, String alerta) {
         this.nome_professor = nome_professor;
         this.nome_material = nome_material;
         this.quantidade = quantidade;
         this.data_solicitacao = data_solicitacao;
+        this.alerta = alerta;
     }
     public GroqPedidoMaterial() {}
 
@@ -22,4 +24,6 @@ public class GroqPedidoMaterial {
     public void setQuantidade(Integer quantidade) {this.quantidade = quantidade;}
     public String getData_solicitacao() {return data_solicitacao;}
     public void setData_solicitacao(String data_solicitacao) {this.data_solicitacao = data_solicitacao;}
+    public String getAlerta() {return alerta;}
+    public void setAlerta(String alerta) {this.alerta = alerta;}
 }

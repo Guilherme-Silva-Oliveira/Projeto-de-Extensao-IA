@@ -13,6 +13,7 @@ public class GroqMapper {
         response.setNome_material(obj.optString("nome_material",null));
         response.setQuantidade(obj.optInt("quantidade",0));
         response.setData_solicitacao(obj.optString("data_solicitacao",null));
+        response.setAlerta(obj.optString("alerta",null));
         return response;
     }
 }
