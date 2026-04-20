@@ -3,19 +3,17 @@ package school.sptech.sistema_xingu_ia.service;
 import org.springframework.stereotype.Service;
 import school.sptech.sistema_xingu_ia.client.GroqClient;
 import school.sptech.sistema_xingu_ia.client.SolicitacaoClient;
-import school.sptech.sistema_xingu_ia.dto.GroqMessageStruct;
-import school.sptech.sistema_xingu_ia.dto.GroqPedidoMaterial;
-import school.sptech.sistema_xingu_ia.dto.GroqRequest;
-import school.sptech.sistema_xingu_ia.dto.GroqResponse;
+import school.sptech.sistema_xingu_ia.dto.ia.GroqMessageStruct;
+import school.sptech.sistema_xingu_ia.dto.ia.GroqPedidoMaterial;
+import school.sptech.sistema_xingu_ia.dto.ia.GroqRequest;
+import school.sptech.sistema_xingu_ia.dto.ia.GroqResponse;
 import school.sptech.sistema_xingu_ia.mapper.GroqMapper;
 import school.sptech.sistema_xingu_ia.model.Material;
 import school.sptech.sistema_xingu_ia.model.Professor;
 import school.sptech.sistema_xingu_ia.repository.MaterialRepository;
 import school.sptech.sistema_xingu_ia.repository.ProfessorRepository;
 
-import javax.swing.text.html.Option;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,42 +51,42 @@ public class GroqService {
         GroqMessageStruct contextoSistema = new GroqMessageStruct();
         contextoSistema.setRole("system");
         contextoSistema.setContent("""
-Você é uma IA que extrai dados estruturados.
-REGRAS OBRIGATÓRIAS:
-1. Você DEVE identificar o nome do professor EXATAMENTE como está na lista abaixo:
-%s
-2. Se o nome no texto NÃO for exatamente igual a um da lista, retorne:
-"Professor não registrado"
-3. Você DEVE identificar o material EXATAMENTE como está na lista abaixo:
-%s
-4. Se não encontrar, retorne: "Material não registrado"
-5. Você NÃO pode inventar nomes.
-6. Você NÃO pode retornar null.
-7. Retorne APENAS um JSON válido, sem explicações.
-8. A lista de materiais com suas quantidades atuais está no seguinte formato: "NomeMaterial, Quantidade Atual:X"
-Lista:
-%s
-9. Para encontrar o estoque:
-- Localize na lista o material identificado
-- Extraia o número após "Quantidade Atual:"
-10. Compare a quantidade solicitada no texto com a quantidade atual:
-- Se quantidade solicitada > quantidade atual:
-  alerta = "Materiais Insuficientes: X unidades faltantes"
-  (onde X = quantidade solicitada - quantidade atual)
-- Se quantidade solicitada == quantidade atual:
-  alerta = "Estoque Vazio: Após a solicitação, o estoque ficará sem itens"
-- Se quantidade solicitada < quantidade atual:
-  alerta = "Tudo Certo: Material encaminhado para solicitação"
-11. O campo "alerta" NUNCA pode ser vazio ou null.
-Formato obrigatório da resposta:
-{
-  "nome_professor": "",
-  "nome_material": "",
-  "quantidade": 0,
-  "data_solicitacao": "",
-  "alerta": ""
-}
-""".formatted(listaProfessores, listaMateriais, listaMateriais));
+        Você é uma IA que extrai dados estruturados.
+        REGRAS OBRIGATÓRIAS:
+        1. Você DEVE identificar o nome do professor EXATAMENTE como está na lista abaixo:
+        %s
+        2. Se o nome no texto NÃO for exatamente igual a um da lista, retorne:
+        "Professor não registrado"
+        3. Você DEVE identificar o material EXATAMENTE como está na lista abaixo:
+        %s
+        4. Se não encontrar, retorne: "Material não registrado"
+        5. Você NÃO pode inventar nomes.
+        6. Você NÃO pode retornar null.
+        7. Retorne APENAS um JSON válido, sem explicações.
+        8. A lista de materiais com suas quantidades atuais está no seguinte formato: "NomeMaterial, Quantidade Atual:X"
+        Lista:
+        %s
+        9. Para encontrar o estoque:
+        - Localize na lista o material identificado
+        - Extraia o número após "Quantidade Atual:"
+        10. Compare a quantidade solicitada no texto com a quantidade atual:
+        - Se quantidade solicitada > quantidade atual:
+          alerta = "Materiais Insuficientes: X unidades faltantes"
+          (onde X = quantidade solicitada - quantidade atual)
+        - Se quantidade solicitada == quantidade atual:
+          alerta = "Estoque Vazio: Após a solicitação, o estoque ficará sem itens"
+        - Se quantidade solicitada < quantidade atual:
+          alerta = "Tudo Certo: Material encaminhado para solicitação"
+        11. O campo "alerta" NUNCA pode ser vazio ou null.
+        Formato obrigatório da resposta:
+        {
+          "nome_professor": "",
+          "nome_material": "",
+          "quantidade": 0,
+          "data_solicitacao": "",
+          "alerta": ""
+        }
+        """.formatted(listaProfessores, listaMateriais, listaMateriais));
 
         // REQUISIÇÃO DO USUÁRIO
         GroqMessageStruct contextoUsuario = new GroqMessageStruct();
@@ -120,5 +118,9 @@ Formato obrigatório da resposta:
         //PARA ENVIAR MENSAGEM À API PRINCIPAL
         //solicitacaoClient.enviarSolicitacao(solicitacao);
         return solicitacao;
+    }
+    public String enviarMensagemClassApp(String textoRecebido){
+
+        return "aa";
     }
 }

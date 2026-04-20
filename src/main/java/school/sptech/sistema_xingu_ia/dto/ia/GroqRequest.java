@@ -1,4 +1,4 @@
-package school.sptech.sistema_xingu_ia.dto;
+package school.sptech.sistema_xingu_ia.dto.ia;
 
 import java.util.List;
 

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.sptech.sistema_xingu_ia.service.GroqService;
-import school.sptech.sistema_xingu_ia.dto.GroqPedidoMaterial;
+import school.sptech.sistema_xingu_ia.dto.ia.GroqPedidoMaterial;
 
 @RestController
 @RequestMapping("/ia")
@@ -19,5 +19,10 @@ public class GroqController {
     @PostMapping("/talk")
     public ResponseEntity<GroqPedidoMaterial> talk (@RequestBody String mensagem){
         return ResponseEntity.status(201).body(service.extrairDados(mensagem));
+    }
+
+    @PostMapping("/message")
+    public ResponseEntity<String> enviarMensagem(@RequestBody String mensagem){
+        return ResponseEntity.status(201).body(service.enviarMensagemClassApp(mensagem));
     }
 }

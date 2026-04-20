@@ -1,4 +1,4 @@
-package school.sptech.sistema_xingu_ia.dto;
+package school.sptech.sistema_xingu_ia.dto.ia;
 
 public class GroqMessageStruct {
     private String role; // TIPO DE SOLICITAÇÃO (SISTEMA OU USUÁRIO)

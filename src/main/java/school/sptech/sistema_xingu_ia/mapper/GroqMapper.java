@@ -2,7 +2,7 @@ package school.sptech.sistema_xingu_ia.mapper;
 
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
-import school.sptech.sistema_xingu_ia.dto.GroqPedidoMaterial;
+import school.sptech.sistema_xingu_ia.dto.ia.GroqPedidoMaterial;
 
 @Component
 public class GroqMapper {
