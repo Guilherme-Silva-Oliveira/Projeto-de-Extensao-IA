@@ -78,12 +78,14 @@ public class GroqService {
         - Se quantidade solicitada < quantidade atual:
           alerta = "Tudo Certo: Material encaminhado para solicitação"
         11. O campo "alerta" NUNCA pode ser vazio ou null.
+        12. Localize também o motivo da solicitação, para algo que se encaixe dentro do contexto escolar, ou seja, Atividades Avaliativas, Provas, etc
         Formato obrigatório da resposta:
         {
           "nome_professor": "",
           "nome_material": "",
           "quantidade": 0,
           "data_solicitacao": "",
+          "motivo": "",
           "alerta": ""
         }
         """.formatted(listaProfessores, listaMateriais, listaMateriais));
@@ -115,8 +117,7 @@ public class GroqService {
                 .getMessage()
                 .getContent();
         GroqPedidoMaterial solicitacao = mapper.toGroqPedidoMaterial(json);
-        //PARA ENVIAR MENSAGEM À API PRINCIPAL
-        //solicitacaoClient.enviarSolicitacao(solicitacao);
+        solicitacaoClient.enviarSolicitacao(solicitacao);
         return solicitacao;
     }
 }

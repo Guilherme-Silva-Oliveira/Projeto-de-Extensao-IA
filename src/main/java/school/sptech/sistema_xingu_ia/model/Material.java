@@ -7,16 +7,14 @@ public class Material {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String nomeMaterial;
-    private String codigoBarras;
     @ManyToOne private Categoria categoria;
     @ManyToOne private Almoxarifado almoxarifado;
     @ManyToOne private UnidadeMedida unidadeMedida;
     private Integer quantidade;
 
-    public Material(Integer id, String nomeMaterial, String codigoBarras, Categoria categoria, Almoxarifado almoxarifado, UnidadeMedida unidadeMedida, Integer quantidade) {
+    public Material(Integer id, String nomeMaterial, Categoria categoria, Almoxarifado almoxarifado, UnidadeMedida unidadeMedida, Integer quantidade) {
         this.id = id;
         this.nomeMaterial = nomeMaterial;
-        this.codigoBarras = codigoBarras;
         this.categoria = categoria;
         this.almoxarifado = almoxarifado;
         this.unidadeMedida = unidadeMedida;
@@ -47,6 +45,4 @@ public class Material {
     public void setUnidadeMedida(UnidadeMedida unidadeMedida) {this.unidadeMedida = unidadeMedida;}
     public Almoxarifado getAlmoxarifado() {return almoxarifado;}
     public void setAlmoxarifado(Almoxarifado almoxarifado) {this.almoxarifado = almoxarifado;}
-    public String getCodigoBarras() {return codigoBarras;}
-    public void setCodigoBarras(String codigoBarras) {this.codigoBarras = codigoBarras;}
 }
