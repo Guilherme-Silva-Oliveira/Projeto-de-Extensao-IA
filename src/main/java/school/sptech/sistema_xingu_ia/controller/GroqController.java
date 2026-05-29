@@ -1,12 +1,12 @@
 package school.sptech.sistema_xingu_ia.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import school.sptech.sistema_xingu_ia.model.InteligenciaArtificial;
 import school.sptech.sistema_xingu_ia.service.GroqService;
 import school.sptech.sistema_xingu_ia.dto.ia.GroqPedidoMaterial;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/ia")
@@ -20,4 +20,10 @@ public class GroqController {
     public ResponseEntity<GroqPedidoMaterial> talk (@RequestBody String mensagem){
         return ResponseEntity.status(201).body(service.extrairDados(mensagem));
     }
+
+    @GetMapping("/talk")
+    public ResponseEntity<List<InteligenciaArtificial>> listarModelos(){
+        return ResponseEntity.status(200).body(service.listarModelos());
+    }
+
 }

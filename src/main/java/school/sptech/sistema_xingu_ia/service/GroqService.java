@@ -2,17 +2,19 @@ package school.sptech.sistema_xingu_ia.service;
 
 import org.springframework.stereotype.Service;
 import school.sptech.sistema_xingu_ia.client.GroqClient;
+import school.sptech.sistema_xingu_ia.client.PedidoSaidaClient;
 import school.sptech.sistema_xingu_ia.client.SolicitacaoClient;
-import school.sptech.sistema_xingu_ia.dto.ia.GroqMessageStruct;
-import school.sptech.sistema_xingu_ia.dto.ia.GroqPedidoMaterial;
-import school.sptech.sistema_xingu_ia.dto.ia.GroqRequest;
-import school.sptech.sistema_xingu_ia.dto.ia.GroqResponse;
+import school.sptech.sistema_xingu_ia.dto.ia.*;
 import school.sptech.sistema_xingu_ia.mapper.GroqMapper;
 import school.sptech.sistema_xingu_ia.model.Material;
+import school.sptech.sistema_xingu_ia.model.InteligenciaArtificial;
+import school.sptech.sistema_xingu_ia.model.PedidoSaidaRequest;
 import school.sptech.sistema_xingu_ia.model.Professor;
 import school.sptech.sistema_xingu_ia.repository.MaterialRepository;
+import school.sptech.sistema_xingu_ia.repository.InteligenciaArtificialRepository;
 import school.sptech.sistema_xingu_ia.repository.ProfessorRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,12 +25,17 @@ public class GroqService {
     private final GroqMapper mapper;
     private final MaterialRepository materialRepository;
     private final ProfessorRepository professorRepository;
-    public GroqService(GroqClient client, SolicitacaoClient solicitacaoClient, GroqMapper mapper, MaterialRepository materialRepository, ProfessorRepository professorRepository) {
+    private final InteligenciaArtificialRepository modeloIARepository;
+    private final PedidoSaidaClient pedidoSaidaClient;
+
+    public GroqService(GroqClient client, SolicitacaoClient solicitacaoClient, GroqMapper mapper, MaterialRepository materialRepository, ProfessorRepository professorRepository, InteligenciaArtificialRepository modeloIARepository, PedidoSaidaClient pedidoSaidaClient) {
         this.client = client;
         this.solicitacaoClient = solicitacaoClient;
         this.mapper = mapper;
         this.materialRepository = materialRepository;
         this.professorRepository = professorRepository;
+        this.modeloIARepository = modeloIARepository;
+        this.pedidoSaidaClient = pedidoSaidaClient;
     }
     public GroqPedidoMaterial extrairDados(String textoRecebido){
         // LISTANDO TODOS OS MATERIAIS E PROFESSORES
@@ -99,25 +106,88 @@ public class GroqService {
 
         // UNIR MENSAGENS EM UMA LISTA
         List<GroqMessageStruct> messages = List.of(contextoSistema,contextoUsuario);
+        List<InteligenciaArtificial> modeloIAS = listarModelos();
 
-        // REQUEST PARA A IA
-        GroqRequest request = new GroqRequest();
-        request.setModel("llama-3.3-70b-versatile");
-        request.setMessages(messages);
-        request.setTemperature(0.0);
-        request.setMax_completion_tokens(500);
-        request.setStream(false);
+        // Loop pelos modelos cadastrados no banco
+        for (InteligenciaArtificial modelo : modeloIAS) {
+            try {
+                    System.out.println("Tentando requisição com o modelo: " + modelo.getNomeModelo());
 
-        // CHAMANDO A IA
-        GroqResponse response = client.chat(request);
 
-        // CONVERTENDO JSON PARA UMA STRING
-        String json = response.getChoices()
-                .getFirst()
-                .getMessage()
-                .getContent();
-        GroqPedidoMaterial solicitacao = mapper.toGroqPedidoMaterial(json);
-        solicitacaoClient.enviarSolicitacao(solicitacao);
-        return solicitacao;
+                    GroqRequest request = new GroqRequest();
+                    request.setModel(modelo.getNomeModelo());
+                    request.setMessages(messages);
+                    request.setTemperature(0.0);
+                    request.setMax_completion_tokens(500);
+                    request.setStream(false);
+
+                    GroqResponse response = client.chat(request);
+
+
+                    String json = response.getChoices().getFirst().getMessage().getContent();
+                    GroqPedidoMaterial dadosIa = mapper.toGroqPedidoMaterial(json);
+
+
+                    Material materialDoBanco = materialRepository.findByNomeMaterial(dadosIa.getNome_material())
+                            .orElseThrow(() -> new RuntimeException("Material extraído pela IA não foi encontrado no banco."));
+
+                    Professor professorDoBanco = professorRepository.findByNome(dadosIa.getNome_professor())
+                            .orElseThrow(() -> new RuntimeException("Professor extraído pela IA não está registrado no banco."));
+
+                    LocalDateTime momentoSolicitacao = LocalDateTime.now();
+
+                    SolicitacaoRequest novaSolicitacaoDto = new SolicitacaoRequest(
+                            professorDoBanco.getId(),
+                            dadosIa.getMotivo(),
+                            LocalDateTime.now()
+                    );
+
+
+                    SolicitacaoResponse solicitacaoSalva = solicitacaoClient.enviarSolicitacao(novaSolicitacaoDto);
+                    Integer idSolicitacaoGerado = solicitacaoSalva.id();
+
+
+                    Integer idEscalaExemplo = 1;
+                    PedidoSaidaRequest pedidoSaidaDto = new PedidoSaidaRequest(
+                            materialDoBanco.getId(),
+                            idSolicitacaoGerado,
+                            dadosIa.getQuantidade(),
+                            LocalDateTime.now(),
+                            idEscalaExemplo
+                    );
+
+
+                    pedidoSaidaClient.cadastrarPedidoSaida(pedidoSaidaDto);
+
+
+                    Long tokensDestaRequisicao = (long) response.getUsage().getTotal_tokens();
+
+                    Long tokensAcumuladosAtuais = modelo.getTokensUtilizados() != null ? modelo.getTokensUtilizados() : 0L;
+
+                    modelo.setTokensUtilizados(tokensAcumuladosAtuais + tokensDestaRequisicao);
+
+                    modelo.setUltimaUtilizacao(momentoSolicitacao);
+
+                    modeloIARepository.save(modelo);
+
+                    System.out.println("Métricas atualizadas para o modelo " + modelo.getNomeModelo() +
+                            " (+ " + tokensDestaRequisicao + " tokens).");
+
+                    System.out.println("Sucesso completo com o modelo: " + modelo.getNomeModelo());
+                    return dadosIa;
+
+                } catch (Exception e) {
+                    System.err.println("Falha no fluxo do modelo " + modelo.getNomeModelo() + ". Erro: " + e.getMessage());
+                }
+        }
+        throw new RuntimeException("Todos os modelos de IA falharam ou estão indisponíveis no momento.");
+    }
+
+    public List<InteligenciaArtificial> listarModelos() {
+        List<InteligenciaArtificial> modeloIAS = modeloIARepository.findAllByOrderByTokensUtilizadosAsc();
+        if (modeloIAS.isEmpty()){
+            System.out.println("Não há modelos no banco");
+        }
+        return modeloIAS;
     }
 }

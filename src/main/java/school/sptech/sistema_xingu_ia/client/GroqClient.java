@@ -9,7 +9,7 @@ import school.sptech.sistema_xingu_ia.dto.ia.GroqResponse;
 
 @FeignClient(
         name = "groqClient",
-        url = "https://api.groq.com/openai/v1",
+        url = "${groq.api.url}",
         configuration = IAConfig.class
 )
 public interface GroqClient {
