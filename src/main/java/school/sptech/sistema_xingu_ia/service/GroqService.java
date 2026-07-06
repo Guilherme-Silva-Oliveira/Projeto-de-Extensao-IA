@@ -7,10 +7,12 @@ import school.sptech.sistema_xingu_ia.client.SolicitacaoClient;
 import school.sptech.sistema_xingu_ia.dto.ia.*;
 import school.sptech.sistema_xingu_ia.mapper.GroqMapper;
 import school.sptech.sistema_xingu_ia.model.Material;
+import school.sptech.sistema_xingu_ia.model.Motivo;
 import school.sptech.sistema_xingu_ia.model.InteligenciaArtificial;
 import school.sptech.sistema_xingu_ia.model.PedidoSaidaRequest;
 import school.sptech.sistema_xingu_ia.model.Professor;
 import school.sptech.sistema_xingu_ia.repository.MaterialRepository;
+import school.sptech.sistema_xingu_ia.repository.MotivoRepository;
 import school.sptech.sistema_xingu_ia.repository.InteligenciaArtificialRepository;
 import school.sptech.sistema_xingu_ia.repository.ProfessorRepository;
 
@@ -25,15 +27,17 @@ public class GroqService {
     private final GroqMapper mapper;
     private final MaterialRepository materialRepository;
     private final ProfessorRepository professorRepository;
+    private final MotivoRepository motivoRepository;
     private final InteligenciaArtificialRepository modeloIARepository;
     private final PedidoSaidaClient pedidoSaidaClient;
 
-    public GroqService(GroqClient client, SolicitacaoClient solicitacaoClient, GroqMapper mapper, MaterialRepository materialRepository, ProfessorRepository professorRepository, InteligenciaArtificialRepository modeloIARepository, PedidoSaidaClient pedidoSaidaClient) {
+    public GroqService(GroqClient client, SolicitacaoClient solicitacaoClient, GroqMapper mapper, MaterialRepository materialRepository, ProfessorRepository professorRepository, MotivoRepository motivoRepository, InteligenciaArtificialRepository modeloIARepository, PedidoSaidaClient pedidoSaidaClient) {
         this.client = client;
         this.solicitacaoClient = solicitacaoClient;
         this.mapper = mapper;
         this.materialRepository = materialRepository;
         this.professorRepository = professorRepository;
+        this.motivoRepository = motivoRepository;
         this.modeloIARepository = modeloIARepository;
         this.pedidoSaidaClient = pedidoSaidaClient;
     }
@@ -134,10 +138,21 @@ public class GroqService {
                     Professor professorDoBanco = professorRepository.findByNome(dadosIa.getNome_professor())
                             .orElseThrow(() -> new RuntimeException("Professor extraído pela IA não está registrado no banco."));
 
+                    Motivo motivoDoBanco;
+                    if (dadosIa.getMotivo() == null || dadosIa.getMotivo().isBlank()) {
+                        motivoDoBanco = motivoRepository.findById(1)
+                                .orElseThrow(() -> new RuntimeException("Motivo padrao nao encontrado no banco."));
+                    } else {
+                        motivoDoBanco = motivoRepository.findByDescricaoIgnoreCase(dadosIa.getMotivo())
+                                .orElseGet(() -> motivoRepository.findById(1)
+                                        .orElseThrow(() -> new RuntimeException("Motivo padrao nao encontrado no banco.")));
+                    }
+
                     LocalDateTime momentoSolicitacao = LocalDateTime.now();
 
                     SolicitacaoRequest novaSolicitacaoDto = new SolicitacaoRequest(
                             professorDoBanco.getId(),
+                            motivoDoBanco.getId(),
                             dadosIa.getMotivo(),
                             LocalDateTime.now()
                     );
@@ -153,7 +168,8 @@ public class GroqService {
                             idSolicitacaoGerado,
                             dadosIa.getQuantidade(),
                             LocalDateTime.now(),
-                            idEscalaExemplo
+                            idEscalaExemplo,
+                            modelo.getId()
                     );
 
 

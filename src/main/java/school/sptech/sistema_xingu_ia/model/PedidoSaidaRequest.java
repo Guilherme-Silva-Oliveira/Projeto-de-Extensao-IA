@@ -9,14 +9,15 @@ public class PedidoSaidaRequest {
     private Integer quantidade;
     private LocalDateTime dataSolicitacao;
     private Integer escalaId;
+    private Integer inteligenciaArtificialId;
 
-
-    public PedidoSaidaRequest(Integer materialId, Integer solicitacaoId, Integer quantidade, LocalDateTime dataSolicitacao, Integer escalaId) {
+    public PedidoSaidaRequest(Integer materialId, Integer solicitacaoId, Integer quantidade, LocalDateTime dataSolicitacao, Integer escalaId, Integer inteligenciaArtificialId) {
         this.materialId = materialId;
         this.solicitacaoId = solicitacaoId;
         this.quantidade = quantidade;
         this.dataSolicitacao = dataSolicitacao;
         this.escalaId = escalaId;
+        this.inteligenciaArtificialId = inteligenciaArtificialId;
     }
 
     public PedidoSaidaRequest() {
@@ -60,5 +61,13 @@ public class PedidoSaidaRequest {
 
     public void setEscalaId(Integer escalaId) {
         this.escalaId = escalaId;
+    }
+
+    public Integer getInteligenciaArtificialId() {
+        return inteligenciaArtificialId;
+    }
+
+    public void setInteligenciaArtificialId(Integer inteligenciaArtificialId) {
+        this.inteligenciaArtificialId = inteligenciaArtificialId;
     }
 }

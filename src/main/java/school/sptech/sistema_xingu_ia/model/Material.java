@@ -11,14 +11,16 @@ public class Material {
     @ManyToOne private Almoxarifado almoxarifado;
     @ManyToOne private UnidadeMedida unidadeMedida;
     private Integer quantidade;
+    private String descricao;
 
-    public Material(Integer id, String nomeMaterial, Categoria categoria, Almoxarifado almoxarifado, UnidadeMedida unidadeMedida, Integer quantidade) {
+    public Material(Integer id, String nomeMaterial, Categoria categoria, Almoxarifado almoxarifado, UnidadeMedida unidadeMedida, Integer quantidade, String descricao) {
         this.id = id;
         this.nomeMaterial = nomeMaterial;
         this.categoria = categoria;
         this.almoxarifado = almoxarifado;
         this.unidadeMedida = unidadeMedida;
         this.quantidade = quantidade;
+        this.descricao = descricao;
     }
 
     public Material() {}
@@ -45,4 +47,10 @@ public class Material {
     public void setUnidadeMedida(UnidadeMedida unidadeMedida) {this.unidadeMedida = unidadeMedida;}
     public Almoxarifado getAlmoxarifado() {return almoxarifado;}
     public void setAlmoxarifado(Almoxarifado almoxarifado) {this.almoxarifado = almoxarifado;}
+    public String getDescricao() {
+        return descricao;
+    }
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
 }

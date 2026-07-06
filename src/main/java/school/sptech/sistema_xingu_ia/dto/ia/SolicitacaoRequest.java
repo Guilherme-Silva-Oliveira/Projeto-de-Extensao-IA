@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 public record SolicitacaoRequest(
         Integer idProfessor,
+        Integer idMotivo,
         String descricao,
         LocalDateTime dataSolicitacao
 ) {
