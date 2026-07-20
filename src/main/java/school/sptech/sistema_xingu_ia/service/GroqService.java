@@ -85,6 +85,8 @@ public class GroqService {
           alerta = "Tudo Certo: Material encaminhado para solicitação"
         11. O campo "alerta" NUNCA pode ser vazio ou null.
         12. Localize também o motivo da solicitação, para algo que se encaixe dentro do contexto escolar, ou seja, Atividades Avaliativas, Provas, etc
+        13. Considere o campo deve_devolver analisando no contexto real se o material associado deve ser devolvido, caso seja algum material como tintas ou colas com recipiente, considere
+        que não deve devolver, apenas com itens como tesouras, pincéis, que naturalmente sempre devem ser devolvidos à não ser que estejam quebrados, e preencha estes campos como true ou false sem aspas
         Formato obrigatório da resposta:
         {
           "nome_professor": "",
@@ -92,7 +94,8 @@ public class GroqService {
           "quantidade": 0,
           "data_solicitacao": "",
           "motivo": "",
-          "alerta": ""
+          "alerta": "",
+          "deve_devolver":""
         }
         OBS: Salve a data_solicitacao no formato de exemplo 2026-07-20T10:00:00
         """.formatted(listaProfessores, listaMateriais, listaMateriais));
@@ -149,6 +152,7 @@ public class GroqService {
                             motivoDoBanco.getId(),
                             materialDoBanco.getId(),
                             dadosIa.getQuantidade(),
+                            dadosIa.getDeveDevolver(),
                             modelo.getId(),
                             dadosIa.getMotivo(),
                             LocalDateTime.now(),
