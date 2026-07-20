@@ -1,16 +1,12 @@
 package school.sptech.sistema_xingu_ia.service;
 
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import school.sptech.sistema_xingu_ia.client.GroqClient;
-import school.sptech.sistema_xingu_ia.client.PedidoSaidaClient;
 import school.sptech.sistema_xingu_ia.client.SolicitacaoClient;
 import school.sptech.sistema_xingu_ia.dto.ia.*;
 import school.sptech.sistema_xingu_ia.mapper.GroqMapper;
-import school.sptech.sistema_xingu_ia.model.Material;
-import school.sptech.sistema_xingu_ia.model.Motivo;
-import school.sptech.sistema_xingu_ia.model.InteligenciaArtificial;
-import school.sptech.sistema_xingu_ia.model.PedidoSaidaRequest;
-import school.sptech.sistema_xingu_ia.model.Professor;
+import school.sptech.sistema_xingu_ia.model.*;
 import school.sptech.sistema_xingu_ia.repository.MaterialRepository;
 import school.sptech.sistema_xingu_ia.repository.MotivoRepository;
 import school.sptech.sistema_xingu_ia.repository.InteligenciaArtificialRepository;
@@ -29,9 +25,8 @@ public class GroqService {
     private final ProfessorRepository professorRepository;
     private final MotivoRepository motivoRepository;
     private final InteligenciaArtificialRepository modeloIARepository;
-    private final PedidoSaidaClient pedidoSaidaClient;
 
-    public GroqService(GroqClient client, SolicitacaoClient solicitacaoClient, GroqMapper mapper, MaterialRepository materialRepository, ProfessorRepository professorRepository, MotivoRepository motivoRepository, InteligenciaArtificialRepository modeloIARepository, PedidoSaidaClient pedidoSaidaClient) {
+    public GroqService(GroqClient client, SolicitacaoClient solicitacaoClient, GroqMapper mapper, MaterialRepository materialRepository, ProfessorRepository professorRepository, MotivoRepository motivoRepository, InteligenciaArtificialRepository modeloIARepository) {
         this.client = client;
         this.solicitacaoClient = solicitacaoClient;
         this.mapper = mapper;
@@ -39,8 +34,8 @@ public class GroqService {
         this.professorRepository = professorRepository;
         this.motivoRepository = motivoRepository;
         this.modeloIARepository = modeloIARepository;
-        this.pedidoSaidaClient = pedidoSaidaClient;
     }
+
     public GroqPedidoMaterial extrairDados(String textoRecebido){
         // LISTANDO TODOS OS MATERIAIS E PROFESSORES
         List<Material> materiais = materialRepository.findAll();
@@ -99,6 +94,7 @@ public class GroqService {
           "motivo": "",
           "alerta": ""
         }
+        OBS: Salve a data_solicitacao no formato de exemplo 2026-07-20T10:00:00
         """.formatted(listaProfessores, listaMateriais, listaMateriais));
 
         // REQUISIÇÃO DO USUÁRIO
@@ -116,8 +112,6 @@ public class GroqService {
         for (InteligenciaArtificial modelo : modeloIAS) {
             try {
                     System.out.println("Tentando requisição com o modelo: " + modelo.getNomeModelo());
-
-
                     GroqRequest request = new GroqRequest();
                     request.setModel(modelo.getNomeModelo());
                     request.setMessages(messages);
@@ -153,28 +147,14 @@ public class GroqService {
                     SolicitacaoRequest novaSolicitacaoDto = new SolicitacaoRequest(
                             professorDoBanco.getId(),
                             motivoDoBanco.getId(),
-                            dadosIa.getMotivo(),
-                            LocalDateTime.now()
-                    );
-
-
-                    SolicitacaoResponse solicitacaoSalva = solicitacaoClient.enviarSolicitacao(novaSolicitacaoDto);
-                    Integer idSolicitacaoGerado = solicitacaoSalva.id();
-
-
-                    Integer idEscalaExemplo = 1;
-                    PedidoSaidaRequest pedidoSaidaDto = new PedidoSaidaRequest(
                             materialDoBanco.getId(),
-                            idSolicitacaoGerado,
                             dadosIa.getQuantidade(),
+                            modelo.getId(),
+                            dadosIa.getMotivo(),
                             LocalDateTime.now(),
-                            idEscalaExemplo,
-                            modelo.getId()
+                            LocalDateTime.parse(dadosIa.getData_solicitacao())
                     );
-
-
-                    pedidoSaidaClient.cadastrarPedidoSaida(pedidoSaidaDto);
-
+                    solicitacaoClient.enviarSolicitacao(novaSolicitacaoDto);
 
                     Long tokensDestaRequisicao = (long) response.getUsage().getTotal_tokens();
 
