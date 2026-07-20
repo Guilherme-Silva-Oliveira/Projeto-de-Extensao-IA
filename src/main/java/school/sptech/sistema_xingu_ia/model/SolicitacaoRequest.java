@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 public record SolicitacaoRequest(
         @NotNull @Schema(description = "Fk para Professor",example = "1") Integer idProfessor,
         @NotNull @Schema(description = "Fk para Motivo",example = "1") Integer idMotivo,
-        @NotNull @Schema(description = "Fk para Material",example = "1") Integer idMaterial,
-        @NotNull @Schema(description = "Quantidade de Material",example = "1") Integer quantidade,
+        @NotNull @Schema(description = "Lista de Materiais",example = "Papel,Tinta") String materiais,
+        @NotNull @Schema(description = "Quantidade de Material",example = "1") String quantidade,
         @NotNull @Schema(description = "Deve Devolver",example = "true") Boolean deveDevolver,
         @Schema(description = "Fk para modelo de IA utilizado") Integer inteligenciaArtificialId,
         @NotBlank @Schema(description = "Motivo da Solicitação",example = "Atividade Avaliativa")String descricao,

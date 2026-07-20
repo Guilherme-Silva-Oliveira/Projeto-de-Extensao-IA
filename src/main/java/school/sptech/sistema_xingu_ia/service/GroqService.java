@@ -1,6 +1,5 @@
 package school.sptech.sistema_xingu_ia.service;
 
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import school.sptech.sistema_xingu_ia.client.GroqClient;
 import school.sptech.sistema_xingu_ia.client.SolicitacaoClient;
@@ -98,6 +97,8 @@ public class GroqService {
           "deve_devolver":""
         }
         OBS: Salve a data_solicitacao no formato de exemplo 2026-07-20T10:00:00
+        OBS2: Se houver mais de um material no pedido, adicione ambos separados por uma vírgula, ou seja, Ex: Papel,Caneta e na coluna quantidade a mesma coisa
+        na mesma ordem que na coluna de nome_material adicione as respectivas quantidades 
         """.formatted(listaProfessores, listaMateriais, listaMateriais));
 
         // REQUISIÇÃO DO USUÁRIO
@@ -128,10 +129,6 @@ public class GroqService {
                     String json = response.getChoices().getFirst().getMessage().getContent();
                     GroqPedidoMaterial dadosIa = mapper.toGroqPedidoMaterial(json);
 
-
-                    Material materialDoBanco = materialRepository.findByNomeMaterial(dadosIa.getNome_material())
-                            .orElseThrow(() -> new RuntimeException("Material extraído pela IA não foi encontrado no banco."));
-
                     Professor professorDoBanco = professorRepository.findByNome(dadosIa.getNome_professor())
                             .orElseThrow(() -> new RuntimeException("Professor extraído pela IA não está registrado no banco."));
 
@@ -150,7 +147,7 @@ public class GroqService {
                     SolicitacaoRequest novaSolicitacaoDto = new SolicitacaoRequest(
                             professorDoBanco.getId(),
                             motivoDoBanco.getId(),
-                            materialDoBanco.getId(),
+                            dadosIa.getNome_material(),
                             dadosIa.getQuantidade(),
                             dadosIa.getDeveDevolver(),
                             modelo.getId(),

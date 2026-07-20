@@ -11,7 +11,7 @@ public class GroqMapper {
         GroqPedidoMaterial response = new GroqPedidoMaterial();
         response.setNome_professor(obj.optString("nome_professor",null));
         response.setNome_material(obj.optString("nome_material",null));
-        response.setQuantidade(obj.optInt("quantidade",0));
+        response.setQuantidade(obj.optString("quantidade",null));
         response.setData_solicitacao(obj.optString("data_solicitacao",null));
         response.setMotivo(obj.optString("motivo",null));
         response.setAlerta(obj.optString("alerta",null));
