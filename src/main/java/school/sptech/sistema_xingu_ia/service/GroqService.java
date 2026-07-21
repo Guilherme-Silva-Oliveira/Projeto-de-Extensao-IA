@@ -85,7 +85,8 @@ public class GroqService {
         11. O campo "alerta" NUNCA pode ser vazio ou null.
         12. Localize também o motivo da solicitação, para algo que se encaixe dentro do contexto escolar, ou seja, Atividades Avaliativas, Provas, etc
         13. Considere o campo deve_devolver analisando no contexto real se o material associado deve ser devolvido, caso seja algum material como tintas ou colas com recipiente, considere
-        que não deve devolver, apenas com itens como tesouras, pincéis, que naturalmente sempre devem ser devolvidos à não ser que estejam quebrados, e preencha estes campos como true ou false sem aspas
+        que não deve devolver, apenas com itens como tesouras, pincéis, que naturalmente sempre devem ser devolvidos à não ser que estejam quebrados, e preencha estes campos como false ou true sem aspas e separado
+        por vírgula à cada material presente na respectiva ordem
         Formato obrigatório da resposta:
         {
           "nome_professor": "",
@@ -98,7 +99,7 @@ public class GroqService {
         }
         OBS: Salve a data_solicitacao no formato de exemplo 2026-07-20T10:00:00
         OBS2: Se houver mais de um material no pedido, adicione ambos separados por uma vírgula, ou seja, Ex: Papel,Caneta e na coluna quantidade a mesma coisa
-        na mesma ordem que na coluna de nome_material adicione as respectivas quantidades 
+        na mesma ordem que na coluna de nome_material adicione as respectivas quantidades.
         """.formatted(listaProfessores, listaMateriais, listaMateriais));
 
         // REQUISIÇÃO DO USUÁRIO

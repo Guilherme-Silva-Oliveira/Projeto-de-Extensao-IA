@@ -9,9 +9,9 @@ public class GroqPedidoMaterial {
     private String motivo;
     private String data_solicitacao;
     private String alerta;
-    private Boolean deveDevolver;
+    private String deveDevolver;
 
-    public GroqPedidoMaterial(String nome_professor, String nome_material, String quantidade, String motivo, String data_solicitacao, String alerta, Boolean deveDevolver) {
+    public GroqPedidoMaterial(String nome_professor, String nome_material, String quantidade, String motivo, String data_solicitacao, String alerta, String deveDevolver) {
         this.nome_professor = nome_professor;
         this.nome_material = nome_material;
         this.quantidade = quantidade;
@@ -35,6 +35,6 @@ public class GroqPedidoMaterial {
     public void setAlerta(String alerta) {this.alerta = alerta;}
     public String getMotivo() {return motivo;}
     public void setMotivo(String motivo) {this.motivo = motivo;}
-    public Boolean getDeveDevolver() {return deveDevolver;}
-    public void setDeveDevolver(Boolean deveDevolver) {this.deveDevolver = deveDevolver;}
+    public String getDeveDevolver() {return deveDevolver;}
+    public void setDeveDevolver(String deveDevolver) {this.deveDevolver = deveDevolver;}
 }

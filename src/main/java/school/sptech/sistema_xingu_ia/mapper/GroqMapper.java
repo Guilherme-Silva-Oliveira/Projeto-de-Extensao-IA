@@ -15,7 +15,7 @@ public class GroqMapper {
         response.setData_solicitacao(obj.optString("data_solicitacao",null));
         response.setMotivo(obj.optString("motivo",null));
         response.setAlerta(obj.optString("alerta",null));
-        response.setDeveDevolver(obj.optBoolean("deve_devolver",false));
+        response.setDeveDevolver(obj.optString("deve_devolver",null));
         return response;
     }
 }
