@@ -76,12 +76,14 @@ public class GroqService {
         - Extraia o número após "Quantidade Atual:"
         10. Compare a quantidade solicitada no texto com a quantidade atual:
         - Se quantidade solicitada > quantidade atual:
-          alerta = "Materiais Insuficientes: X unidades faltantes"
+          alerta = "MATERIAIS_INSUFICIENTES: X material faltando"
+          OBS: Se houver mais de 1 material faltando, coloque da seguinte forma: X material, Y material faltando, caso tenha mais, vai adicionando
+          deixe para adicionar "faltando" no final, ou seja, ex: 10 Caneta, 20 Papel faltando
           (onde X = quantidade solicitada - quantidade atual)
         - Se quantidade solicitada == quantidade atual:
-          alerta = "Estoque Vazio: Após a solicitação, o estoque ficará sem itens"
+          alerta = "ESTOQUE_VAZIO: Após a solicitação, o estoque ficará sem itens"
         - Se quantidade solicitada < quantidade atual:
-          alerta = "Tudo Certo: Material encaminhado para solicitação"
+          alerta = "TUDO_CERTO: Material encaminhado para solicitação"
         11. O campo "alerta" NUNCA pode ser vazio ou null.
         12. Localize também o motivo da solicitação, para algo que se encaixe dentro do contexto escolar, ou seja, Atividades Avaliativas, Provas, etc
         13. Considere o campo deve_devolver analisando no contexto real se o material associado deve ser devolvido, caso seja algum material como tintas ou colas com recipiente, considere
