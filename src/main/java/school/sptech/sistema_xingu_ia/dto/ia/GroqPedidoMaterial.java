@@ -10,8 +10,9 @@ public class GroqPedidoMaterial {
     private String data_solicitacao;
     private String alerta;
     private String deveDevolver;
+    private Integer modeloId;
 
-    public GroqPedidoMaterial(String nome_professor, String nome_material, String quantidade, String motivo, String data_solicitacao, String alerta, String deveDevolver) {
+    public GroqPedidoMaterial(String nome_professor, String nome_material, String quantidade, String motivo, String data_solicitacao, String alerta, String deveDevolver, Integer modeloId) {
         this.nome_professor = nome_professor;
         this.nome_material = nome_material;
         this.quantidade = quantidade;
@@ -19,6 +20,7 @@ public class GroqPedidoMaterial {
         this.data_solicitacao = data_solicitacao;
         this.alerta = alerta;
         this.deveDevolver = deveDevolver;
+        this.modeloId = modeloId;
     }
 
     public GroqPedidoMaterial() {}
@@ -37,4 +39,6 @@ public class GroqPedidoMaterial {
     public void setMotivo(String motivo) {this.motivo = motivo;}
     public String getDeveDevolver() {return deveDevolver;}
     public void setDeveDevolver(String deveDevolver) {this.deveDevolver = deveDevolver;}
+    public Integer getModeloId() { return modeloId; }
+    public void setModeloId(Integer modeloId) { this.modeloId = modeloId; }
 }
