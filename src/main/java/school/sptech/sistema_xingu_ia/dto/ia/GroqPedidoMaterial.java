@@ -1,7 +1,5 @@
 package school.sptech.sistema_xingu_ia.dto.ia;
 
-import java.util.List;
-
 public class GroqPedidoMaterial {
     private String nome_professor;
     private String nome_material;
@@ -11,6 +9,7 @@ public class GroqPedidoMaterial {
     private String alerta;
     private String deveDevolver;
     private Integer modeloId;
+    private String aviso;
 
     public GroqPedidoMaterial(String nome_professor, String nome_material, String quantidade, String motivo, String data_solicitacao, String alerta, String deveDevolver, Integer modeloId) {
         this.nome_professor = nome_professor;
@@ -39,6 +38,8 @@ public class GroqPedidoMaterial {
     public void setMotivo(String motivo) {this.motivo = motivo;}
     public String getDeveDevolver() {return deveDevolver;}
     public void setDeveDevolver(String deveDevolver) {this.deveDevolver = deveDevolver;}
-    public Integer getModeloId() { return modeloId; }
-    public void setModeloId(Integer modeloId) { this.modeloId = modeloId; }
+    public Integer getModeloId() {return modeloId;}
+    public void setModeloId(Integer modeloId) {this.modeloId = modeloId;}
+    public String getAviso() {return aviso;}
+    public void setAviso(String aviso) {this.aviso = aviso;}
 }
