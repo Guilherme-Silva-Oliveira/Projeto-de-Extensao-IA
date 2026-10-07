@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import school.sptech.sistema_xingu_ia.model.InteligenciaArtificial;
 import school.sptech.sistema_xingu_ia.service.GroqService;
+import school.sptech.sistema_xingu_ia.service.LambdaService;
 import school.sptech.sistema_xingu_ia.dto.ia.GroqPedidoMaterial;
 
 import java.util.List;
@@ -18,9 +19,11 @@ import java.util.List;
 @Tag(name = "Inteligência Artificial", description = "Operações de processamento de texto e modelos de IA")
 public class GroqController {
     private final GroqService service;
+    private final LambdaService lambdaService;
 
-    public GroqController(GroqService service) {
+    public GroqController(GroqService service, LambdaService lambdaService) {
         this.service = service;
+        this.lambdaService = lambdaService;
     }
 
     @Operation(summary = "Extrair dados de solicitação de material via IA")
@@ -47,7 +50,12 @@ public class GroqController {
                     )
             )
             @RequestBody String mensagem
+
     ) {
+
+        GroqPedidoMaterial resposta = service.extrairDados(mensagem);
+
+        lambdaService.enviarParaS3(resposta);
         return ResponseEntity.status(201).body(service.extrairDados(mensagem));
     }
 
