@@ -7,6 +7,7 @@ import school.sptech.sistema_xingu_ia.mapper.GroqMapper;
 import school.sptech.sistema_xingu_ia.model.*;
 import school.sptech.sistema_xingu_ia.repository.MaterialRepository;
 import school.sptech.sistema_xingu_ia.repository.InteligenciaArtificialRepository;
+import school.sptech.sistema_xingu_ia.repository.MotivoRepository;
 import school.sptech.sistema_xingu_ia.repository.ProfessorRepository;
 
 import java.time.LocalDateTime;
@@ -19,16 +20,19 @@ public class GroqService {
     private final GroqMapper mapper;
     private final MaterialRepository materialRepository;
     private final ProfessorRepository professorRepository;
+    private final MotivoRepository motivoRepository;
     private final InteligenciaArtificialRepository modeloIARepository;
 
     private record ResultadoExecucaoModelo(GroqPedidoMaterial dadosIa, InteligenciaArtificial modelo, Long tokensUtilizados) {}
 
     public GroqService(GroqClient client, GroqMapper mapper, MaterialRepository materialRepository,
-                       ProfessorRepository professorRepository, InteligenciaArtificialRepository modeloIARepository) {
+                       ProfessorRepository professorRepository, MotivoRepository motivoRepository,
+                       InteligenciaArtificialRepository modeloIARepository) {
         this.client = client;
         this.mapper = mapper;
         this.materialRepository = materialRepository;
         this.professorRepository = professorRepository;
+        this.motivoRepository = motivoRepository;
         this.modeloIARepository = modeloIARepository;
     }
 
@@ -36,6 +40,7 @@ public class GroqService {
         // LISTANDO TODOS OS MATERIAIS E PROFESSORES
         List<Material> materiais = materialRepository.findAll();
         List<Professor> professores = professorRepository.findAll();
+        List<Motivo> motivos = motivoRepository.findAll();
 
         // PASSANDO PARA LISTA EM STRING
         String listaProfessores = professores.stream()
@@ -47,45 +52,72 @@ public class GroqService {
         String listaMateriaisComEstoque = materiais.stream()
                 .map(m -> m.getNomeMaterial() + ", Quantidade Atual:" + m.getQuantidade())
                 .collect(Collectors.joining(","));
+        String listaMotivos = motivos.stream()
+                .map(Motivo::getDescricao)
+                .collect(Collectors.joining(","));
 
         // CONTEXTO PARA A IA
         GroqMessageStruct contextoSistema = new GroqMessageStruct();
         contextoSistema.setRole("system");
         contextoSistema.setContent("""
+        # SEU PAPEL
         Você é uma IA que extrai dados estruturados.
-        REGRAS OBRIGATÓRIAS:
-        1. Você DEVE identificar o nome do professor EXATAMENTE como está na lista abaixo:
-        %s
-        2. Se o nome no texto NÃO for exatamente igual a um da lista, retorne:
-        "Professor não registrado"
-        3. Você DEVE identificar o material EXATAMENTE como está na lista de nomes abaixo:
-        %s
-        4. Se não encontrar, retorne: "Material não registrado"
-        5. Você NÃO pode inventar nomes.
-        6. Você NÃO pode retornar null.
-        7. Retorne APENAS um JSON válido, sem explicações.
-        8. A lista de materiais com suas quantidades atuais está no seguinte formato: "NomeMaterial, Quantidade Atual:X"
-        Lista:
-        %s
-        9. Para encontrar o estoque:
-        - Localize na lista o material identificado
-        - Extraia o número após "Quantidade Atual:"
-        10. Compare a quantidade solicitada no texto com a quantidade atual:
-        - Se quantidade solicitada > quantidade atual:
-          alerta = "MATERIAIS_INSUFICIENTES: X material faltando"
-          OBS: Se houver mais de 1 material faltando, coloque da seguinte forma: X material, Y material faltando, caso tenha mais, vai adicionando
-          deixe para adicionar "faltando" no final, ou seja, ex: 10 Caneta, 20 Papel faltando
-          (onde X = quantidade solicitada - quantidade atual)
-        - Se quantidade solicitada == quantidade atual:
-          alerta = "ESTOQUE_VAZIO: Após a solicitação, o estoque ficará sem itens"
-        - Se quantidade solicitada < quantidade atual:
-          alerta = "TUDO_CERTO: Material encaminhado para solicitação"
-        11. O campo "alerta" NUNCA pode ser vazio ou null.
-        12. Localize também o motivo da solicitação, para algo que se encaixe dentro do contexto escolar, ou seja, Atividades Avaliativas, Provas, etc
-        13. O campo "deve_devolver" NUNCA pode ser vazio. Ele DEVE ser obrigatoriamente preenchido como "true" ou "false":
-        - "true": se o material for durável ou de uso reutilizável que deve ser devolvido ao almoxarifado (ex: pincéis, tesouras, projetores, mouses, cabos, adaptadores, ferramentas).
-        - "false": se o material for consumível ou descartável que não retorna (ex: folhas de papel sulfite, fita adesiva, detergente, copos descartáveis).
-        Se houver mais de um material no pedido, separe por vírgula na mesma ordem dos materiais (ex: "true,false").
+        Retorne APENAS um JSON válido, sem formatação markdown (```json) ou explicações adicionais.
+        
+        # REGRAS CONTRATUAIS
+        - Não invente nomes.
+        - Não retorne null em nenhum campo.
+        
+        # REGRAS DE IDENTIFICAÇÃO:
+        
+        ## Identifique o professor mais provável da lista.
+            - Aceitando nome parcial, diferença de maiúsculas/minúsculas e pequenas variações de escrita.
+            - Se houver apenas uma correspondência clara, retorne o nome exatamente como está na lista.
+            - Se houver ambiguidade, retorne "Professor não identificado".
+            - Se não houver nenhum nome similar na lista, retorne: "Professor não registrado"
+            **Lista de professores:**
+            %s
+            
+        ## Identifique o material mais provável da lista. 
+            - Aceitando nome parcial, singular/plural e pequenas variações.
+            - Retorne sempre o nome exatamente como aparece na lista.
+            - Se não houver nenhum nome similar na lista, retorne: "Material não registrado"
+            **Lista de materiais (Nomes):**
+            %s
+            
+        ## Para encontrar o estoque:
+            - A lista abaixo contém os materiais com suas quantidades no formato "NomeMaterial, Quantidade Atual:X"
+            **Lista de materiais com estoque:**
+            %s
+            - Localize na lista acima o material identificado e extraia o número após "Quantidade Atual:".
+            
+        ## Compare a quantidade solicitada no texto com a quantidade atual:
+            - Se quantidade solicitada > quantidade atual:
+                  alerta = "MATERIAIS_INSUFICIENTES: X material faltando"
+                  OBS: Se houver mais de 1 material faltando, coloque da seguinte forma: X material, Y material faltando.
+                  (onde X = quantidade solicitada - quantidade atual)
+            - Se quantidade solicitada == quantidade atual:
+                 alerta = "ESTOQUE_VAZIO: Após a solicitação, o estoque ficará sem itens"
+            - Se quantidade solicitada < quantidade atual:
+                alerta = "TUDO_CERTO: Material encaminhado para solicitação"
+        
+        ## Identifique o motivo mais provável da lista. 
+            - Aceite termos parecidos e variações de escrita. Retorne EXATAMENTE como aparece na lista.
+            - Se houver ambiguidade ou nenhum se aplicar claramente, use o motivo mais próximo do contexto da solicitação. Não invente novos motivos.
+            **Lista de motivos:**
+            %s
+          
+        # REGRAS DE SAÍDA    
+        
+        ## O campo "alerta" NUNCA pode ser vazio ou null.
+        ## O campo "deve_devolver" NUNCA pode ser vazio. Ele DEVE ser obrigatoriamente preenchido como "true" ou "false":
+            - "true": se o material for durável ou de uso reutilizável (ex: pincéis, tesouras, projetores, mouses, cabos, ferramentas).
+            - "false": se o material for consumível ou descartável (ex: papel sulfite, fita adesiva, copos descartáveis).
+        ## MÚLTIPLOS ITENS: Se houver mais de um material no pedido, adicione ambos separados por uma vírgula na coluna "nome_material" (Ex: Papel,Caneta).
+        ## Na coluna "quantidade", faça a mesma coisa na mesma ordem que na coluna nome_material (Ex: 10,20).
+        ## Na coluna "deve_devolver", separe por vírgula na mesma ordem dos materiais (ex: "true,false").
+        ## Salve a data_solicitacao no formato de exemplo 2026-07-20T10:00:00.
+        
         Formato obrigatório da resposta:
         {
           "nome_professor": "",
@@ -96,10 +128,7 @@ public class GroqService {
           "alerta": "",
           "deve_devolver": "true"
         }
-        OBS: Salve a data_solicitacao no formato de exemplo 2026-07-20T10:00:00
-        OBS2: Se houver mais de um material no pedido, adicione ambos separados por uma vírgula, ou seja, Ex: Papel,Caneta e na coluna quantidade a mesma coisa
-        na mesma ordem que na coluna de nome_material adicione as respectivas quantidades.
-        """.formatted(listaProfessores, listaNomesMateriais, listaMateriaisComEstoque));
+        """.formatted(listaProfessores, listaNomesMateriais, listaMateriaisComEstoque, listaMotivos));
 
         // REQUISIÇÃO DO USUÁRIO
         GroqMessageStruct contextoUsuario = new GroqMessageStruct();
