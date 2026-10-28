@@ -12,7 +12,9 @@ public class CorsConfig implements WebMvcConfigurer {
         registry.addMapping("/ia/**")
                 .allowedOrigins(
                         "http://localhost:5173",  // Vite (front)
-                        "http://localhost:3000"
+                        "http://localhost:3000",
+                        "http://localhost:8080",
+                        "http://localhost:80"
                 )
                 .allowedMethods("GET", "POST", "OPTIONS")
                 .allowedHeaders("*");
